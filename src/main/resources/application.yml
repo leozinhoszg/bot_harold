@@ -2,6 +2,11 @@ spring:
   application:
     name: api-bridge-bot
 
+  # Java 21: virtual threads para as chamadas bloqueantes (WebClient/Telegram).
+  threads:
+    virtual:
+      enabled: ${VIRTUAL_THREADS_ENABLED:true}
+
   # Sem servidor web nesta fase: usamos apenas o WebClient para chamar APIs externas.
   # Uma API de administracao/actuator HTTP pode ser habilitada no futuro.
   main:

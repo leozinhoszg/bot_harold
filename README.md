@@ -4,7 +4,7 @@ Serviço de integração que faz **polling de APIs externas**, detecta **registr
 **notificações formatadas no Telegram**. A arquitetura é **config-driven**: novas APIs são
 adicionadas por configuração (JSONPath + template), sem alterar o código do core.
 
-- **Stack:** Java 17 · Spring Boot 3 · SQLite (Liquibase) · Redis (cache opcional) · WebClient · Telegram Bot API
+- **Stack:** Java 21 (LTS) · Spring Boot 3 · SQLite (Liquibase) · Redis (cache opcional) · WebClient · Telegram Bot API · Virtual Threads
 - **Build:** Maven (via wrapper `./mvnw`)
 
 ---
@@ -56,7 +56,7 @@ envio é re-tentada no próximo ciclo.
 
 ## Pré-requisitos
 
-- **JDK 17** (o projeto usa Java 17; migração para 21 é trivial — trocar `<java.version>` no `pom.xml`).
+- **JDK 21** (LTS). Virtual threads são usadas para as chamadas bloqueantes (WebClient/Telegram).
 - **Maven** não precisa estar instalado — use o wrapper (`.\mvnw.cmd` no Windows, `./mvnw` no Unix).
 - **Redis** é **opcional** (o app degrada para SQLite se ausente).
 - **Docker** opcional (para Redis local e para buildar a imagem).
@@ -92,6 +92,7 @@ cp .env.example .env      # depois edite o .env (é ignorado pelo git)
 | `DATABASE_URL` | `jdbc:sqlite:data/database.db` | JDBC do SQLite. |
 | `APP_SCHEDULER_ENABLED` | `true` | Liga/desliga o agendamento. |
 | `POLLING_THREADS` | `5` | Tamanho do pool do scheduler. |
+| `VIRTUAL_THREADS_ENABLED` | `true` | Usa virtual threads (Java 21) para tarefas bloqueantes. |
 | `ROOT_LOG_LEVEL` / `LOG_LEVEL` | `INFO` / `DEBUG` | Nível de log (root / app). |
 
 > ⚠️ **Nunca comite segredos.** O `.env` está no `.gitignore`; o token só vive no seu ambiente.
