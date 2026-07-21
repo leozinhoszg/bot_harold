@@ -1,0 +1,11 @@
+target/
+data/
+*.db
+*.db-shm
+*.db-wal
+.git/
+.idea/
+*.iml
+.vscode/
+*.log
+.env

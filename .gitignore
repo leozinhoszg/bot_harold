@@ -1,0 +1,30 @@
+# Build
+target/
+build/
+
+# Banco SQLite local (dados de runtime)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+
+# Logs
+*.log
+
+# Segredos / ambiente local (NUNCA comitar)
+.env
+.env.local
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ferramentas locais / harness
+.claude/

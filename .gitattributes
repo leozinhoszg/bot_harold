@@ -1,0 +1,11 @@
+# Normaliza line-endings: LF no repositorio por padrao.
+* text=auto eol=lf
+
+# Scripts do Windows mantem CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Wrapper e scripts Unix precisam de LF.
+mvnw text eol=lf
+*.sh text eol=lf

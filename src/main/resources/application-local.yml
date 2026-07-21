@@ -1,0 +1,25 @@
+# Perfil LOCAL para demonstracao/teste manual (ative com --spring.profiles.active=local).
+# Token e chat vem de variaveis de ambiente (nunca comitados):
+#   TELEGRAM_BOT_TOKEN  -> token do BotFather
+#   TELEGRAM_DEFAULT_CHAT -> seu chat_id (destino padrao das notificacoes)
+#
+# Integracao de exemplo: JSONPlaceholder (API publica, sem auth), limitada a 2 posts.
+# Na 1a execucao envia 2 mensagens; nas seguintes o dedup (SQLite) impede repeticao.
+app:
+  scheduler:
+    enabled: true
+  seed:
+    integrations:
+      - name: demo-jsonplaceholder
+        url: "https://jsonplaceholder.typicode.com/posts?_limit=2"
+        enabled: true
+        cron: "*/20 * * * * *"      # dispara a cada 20s (so para o demo)
+        authType: NONE
+        # chatId omitido -> usa telegram.default-chat (env TELEGRAM_DEFAULT_CHAT)
+        config:
+          recordsPath: "$[*]"
+          businessKey: "$.id"
+          template: "<b>Post #{id}</b>\n{title}"
+          fields:
+            id: "$.id"
+            title: "$.title"

@@ -1,0 +1,38 @@
+spring:
+  # Testes usam um SQLite proprio sob target/ (limpo pelo mvn clean); nao toca em data/database.db.
+  datasource:
+    url: jdbc:sqlite:target/test-database.db
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 5
+      connection-init-sql: "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;"
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.sql
+
+  # Redis nao precisa estar rodando para o teste de contexto (conexao e lazy).
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+telegram:
+  token: test-token
+  default-chat: "0"
+
+# Nos testes o scheduler dinamico fica desligado; a orquestracao e testada diretamente.
+app:
+  scheduler:
+    enabled: false
+
+logging:
+  level:
+    com.promagroup.apibridge: DEBUG

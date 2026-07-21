@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: api-bridge-bot
+
+  # Sem servidor web nesta fase: usamos apenas o WebClient para chamar APIs externas.
+  # Uma API de administracao/actuator HTTP pode ser habilitada no futuro.
+  main:
+    web-application-type: none
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:sqlite:data/database.db}
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      # SQLite e single-writer: pool pequeno + busy_timeout evita "database is locked".
+      maximum-pool-size: 5
+      # WAL melhora concorrencia leitura/escrita; busy_timeout faz o driver aguardar o lock.
+      connection-init-sql: "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;"
+
+  jpa:
+    hibernate:
+      ddl-auto: none        # o schema pertence ao Flyway
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+        format_sql: false
+    show-sql: false
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.sql
+
+  # Correcao vs spec original: Spring Boot 3 usa spring.data.redis (nao redis: na raiz).
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      # Redis e cache tolerante a falha; o polling continua via SQLite se ele cair.
+      timeout: 2s
+
+# Configuracao do Telegram. Segredos vem de variaveis de ambiente (nunca commitados).
+telegram:
+  token: ${TELEGRAM_BOT_TOKEN:}
+  default-chat: ${TELEGRAM_DEFAULT_CHAT:}
+  base-url: ${TELEGRAM_BASE_URL:https://api.telegram.org}
+  timeout: ${TELEGRAM_TIMEOUT:3s}   # meta de entrega < 3s
+  retry-max-attempts: ${TELEGRAM_RETRY_MAX_ATTEMPTS:2}
+  retry-backoff: ${TELEGRAM_RETRY_BACKOFF:300ms}
+
+# Parametros da camada de integracao.
+app:
+  scheduler:
+    enabled: ${APP_SCHEDULER_ENABLED:true}
+  integrations:
+    polling-threads: ${POLLING_THREADS:5}
+  cache:
+    # TTL do dedup no Redis; SQLite permanece como fonte da verdade.
+    dedup-ttl: ${DEDUP_TTL:24h}
+  client:
+    connect-timeout: 2s
+    response-timeout: 2s        # meta de performance: resposta < 2s
+    retry-max-attempts: 2       # retries alem da tentativa inicial (erros 5xx/timeout)
+    retry-backoff: 200ms
+    max-in-memory-bytes: 10485760  # 10 MB para payloads grandes
+
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL:INFO}
+    com.promagroup.apibridge: ${LOG_LEVEL:DEBUG}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  # health do Redis nao derruba o app: cache e opcional.
+  health:
+    redis:
+      enabled: false

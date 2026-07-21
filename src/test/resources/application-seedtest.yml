@@ -1,0 +1,17 @@
+# Profile de teste do IntegrationSeeder: uma integracao declarada via YAML.
+app:
+  seed:
+    integrations:
+      - name: seed-demo
+        url: https://api.demo.com/items
+        enabled: true
+        cron: "0 * * * * *"
+        authType: API_KEY
+        secretRef: env:DEMO_KEY
+        chatId: "-100999"
+        config:
+          recordsPath: "$.items[*]"
+          businessKey: "$.id"
+          template: "*{title}*"
+          fields:
+            title: "$.name"
